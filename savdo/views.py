@@ -3,8 +3,9 @@ from rest_framework.response import Response
 from rest_framework import status
 from .models import User, Product, Order, OrderItem, Category
 from .serializers import UsersSerializer, ProductSerializer, OrderSerializer, OrderItemSerializer, CategorySerializer, \
-    OrderDetailSerializer
+    OrderItemCreateSerializer
 from rest_framework import generics, permissions
+from decimal import Decimal
 
 
 class UsersView(generics.ListAPIView):
@@ -56,13 +57,6 @@ class UserGetView(APIView):
 
 
 # //////////////////////////////////////////////////////////////////////////////////////////////////
-
-class OrderView(generics.ListAPIView):
-    queryset = Order.objects.all()
-    serializer_class = OrderSerializer
-    permission_classes = [permissions.AllowAny]
-
-
 class OrderCreatView(generics.CreateAPIView):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
@@ -70,22 +64,23 @@ class OrderCreatView(generics.CreateAPIView):
 
 
 class UserOrdersRetrieveView(generics.RetrieveAPIView):
-    serializer_class = OrderDetailSerializer
+    serializer_class = OrderSerializer
 
     def get(self, request, user_id, *args, **kwargs):
-        orders = (
+        order = (
             Order.objects
             .filter(user_id=user_id)
             .order_by('-created_at')
+            .first()
         )
 
-        if not orders.exists():
+        if not order:
             return Response(
                 {"detail": "Bu foydalanuvchiga tegishli buyurtma topilmadi."},
                 status=status.HTTP_404_NOT_FOUND
             )
 
-        serializer = self.get_serializer(orders, many=True)
+        serializer = self.get_serializer(order)
         return Response(serializer.data)
 
 
@@ -115,3 +110,37 @@ class ProductRetrieveAPIView(generics.RetrieveAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     lookup_field = 'id'
+
+
+class OrderItemCreatView(generics.CreateAPIView):
+    queryset = OrderItem.objects.all()
+    serializer_class = OrderItemCreateSerializer
+    permission_classes = [permissions.AllowAny]
+
+
+class OrderItemUpdateView(generics.UpdateAPIView):
+    queryset = OrderItem.objects.all()
+    serializer_class = OrderItemCreateSerializer
+    permission_classes = [permissions.AllowAny]
+    lookup_field = 'id'
+
+
+class OrderDeleteView(generics.DestroyAPIView):
+    queryset = Order.objects.all()
+    permission_classes = [permissions.AllowAny]
+    lookup_field = "id"
+
+    def delete(self, request, *args, **kwargs):
+        order_id = kwargs.get("id")
+        try:
+            order = Order.objects.get(id=order_id)
+            order.delete()
+            return Response(
+                {"detail": f"Order ID {order_id} muvaffaqiyatli o‘chirildi."},
+                status=status.HTTP_204_NO_CONTENT
+            )
+        except Order.DoesNotExist:
+            return Response(
+                {"detail": f"Order ID {order_id} topilmadi."},
+                status=status.HTTP_404_NOT_FOUND
+            )

@@ -34,16 +34,18 @@ class OrderItemSerializer(serializers.ModelSerializer):
         fields = ['id', 'product', 'product_name', 'category_name', 'product_price', 'quantity', 'total_price']
 
 
+class OrderItemCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OrderItem
+        fields = ['id', 'product', 'order', 'quantity']
+
+
 class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(many=True, read_only=True)
     categories = serializers.SlugRelatedField(slug_field='name', many=True, read_only=True)
 
     class Meta:
         model = Order
-        fields = ['id', 'user', 'created_at', 'is_completed', 'total_price', 'categories', 'items']
+        fields = ['id', 'user', 'created_at','total_price', 'categories', 'items']
 
 
-class OrderDetailSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Order
-        fields = ['id', 'user', 'created_at', 'is_completed', 'total_price', 'categories']

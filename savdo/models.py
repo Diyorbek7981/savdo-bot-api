@@ -43,8 +43,9 @@ class Order(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="orders")
     categories = models.ManyToManyField('Category', blank=True, related_name='orders')
     created_at = models.DateTimeField(auto_now_add=True)
+    payment_type = models.CharField(max_length=100, blank=True, null=True)
+    address = models.CharField(max_length=500, blank=True, null=True)
     total_price = models.DecimalField(max_digits=12, decimal_places=2, default=0)
-    is_completed = models.BooleanField(default=False)
 
     def __str__(self):
         return f"Order #{self.id} — {self.user.first_name or self.user.telegram_id}"
@@ -59,7 +60,7 @@ class Order(models.Model):
 class OrderItem(models.Model):
     order = models.ForeignKey('Order', on_delete=models.CASCADE, related_name='items')
     product = models.ForeignKey('Product', on_delete=models.CASCADE)
-    quantity = models.PositiveIntegerField(default=1)
+    quantity = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('1.00'))
     total_price = models.DecimalField(max_digits=12, decimal_places=2, default=0)
 
     def save(self, *args, **kwargs):
