@@ -84,6 +84,29 @@ class UserOrdersRetrieveView(generics.RetrieveAPIView):
         return Response(serializer.data)
 
 
+class UserActiveOrdersView(generics.ListAPIView):
+    serializer_class = OrderSerializer
+
+    def get_queryset(self):
+        user_id = self.kwargs.get("user_id")
+        return (
+            Order.objects
+            .filter(user_id=user_id, is_confirmed=True)
+            .exclude(status="completed")
+            .order_by("-created_at")
+        )
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        if not queryset.exists():
+            return Response(
+                {"detail": "Foydalanuvchining faol buyurtmalari topilmadi."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 class UserOrderUpdateView(generics.UpdateAPIView):
     serializer_class = OrderSerializer
     queryset = Order.objects.all()

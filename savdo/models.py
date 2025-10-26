@@ -40,10 +40,18 @@ class Product(models.Model):
 
 
 class Order(models.Model):
+    STATUS_CHOICES = [
+        ('new', "🆕 Yangi"),
+        ('preparing', "🍳 Tayyorlanmoqda"),
+        ('delivering', "🚚 Yetkazilmoqda"),
+        ('completed', "✅ Yakunlangan"),
+        ('cancelled', "❌ Bekor qilingan"),
+    ]
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="orders")
     categories = models.ManyToManyField('Category', blank=True, related_name='orders')
     created_at = models.DateTimeField(auto_now_add=True)
     is_confirmed = models.BooleanField(default=False)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='new')
     total_price = models.DecimalField(max_digits=12, decimal_places=2, default=0)
 
     def __str__(self):
