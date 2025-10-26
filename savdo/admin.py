@@ -50,10 +50,10 @@ class OrderItemInline(admin.TabularInline):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user', 'created_at', 'payment_type', 'address', 'total_price')
+    list_display = ('id', 'user', 'created_at', 'is_confirmed', 'total_price')
     list_display_links = ('id', 'user')
-    list_filter = ('created_at', 'payment_type')
-    search_fields = ('user__first_name', 'user__user_name', 'user__telegram_id', 'address')
+    list_filter = ('created_at', 'is_confirmed')
+    search_fields = ('user__first_name', 'user__user_name', 'user__telegram_id', 'is_confirmed')
     ordering = ('-created_at',)
     readonly_fields = ('total_price', 'created_at')
     inlines = [OrderItemInline]

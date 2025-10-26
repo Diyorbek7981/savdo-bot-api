@@ -84,6 +84,31 @@ class UserOrdersRetrieveView(generics.RetrieveAPIView):
         return Response(serializer.data)
 
 
+class UserOrderUpdateView(generics.UpdateAPIView):
+    serializer_class = OrderSerializer
+    queryset = Order.objects.all()
+
+    def patch(self, request, user_id, *args, **kwargs):
+        order = (
+            Order.objects
+            .filter(user_id=user_id)
+            .order_by('-created_at')
+            .first()
+        )
+
+        if not order:
+            return Response(
+                {"detail": "Bu foydalanuvchiga tegishli buyurtma topilmadi."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        serializer = self.get_serializer(order, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 class CategoryView(generics.ListAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer

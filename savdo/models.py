@@ -43,8 +43,7 @@ class Order(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="orders")
     categories = models.ManyToManyField('Category', blank=True, related_name='orders')
     created_at = models.DateTimeField(auto_now_add=True)
-    payment_type = models.CharField(max_length=100, blank=True, null=True)
-    address = models.CharField(max_length=500, blank=True, null=True)
+    is_confirmed = models.BooleanField(default=False)
     total_price = models.DecimalField(max_digits=12, decimal_places=2, default=0)
 
     def __str__(self):

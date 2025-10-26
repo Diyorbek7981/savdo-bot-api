@@ -1,7 +1,7 @@
 from django.urls import path
 from .views import UsersView, CreateUserView, UserGetView, GetUpdateUserView, CategoryView, OrderCreatView, \
     UserOrdersRetrieveView, ProductsByCategoryView, ProductRetrieveAPIView, OrderItemCreatView, OrderItemUpdateView, \
-    OrderDeleteView
+    OrderDeleteView,UserOrderUpdateView
 
 urlpatterns = [
     path('users/', UsersView.as_view(), name='users'),
@@ -16,4 +16,5 @@ urlpatterns = [
     path('products/<int:id>/', ProductRetrieveAPIView.as_view(), name='product-detail'),
     path('order_item_creat/', OrderItemCreatView.as_view(), name='order_item_creat'),
     path('orderit_update/<int:id>/', OrderItemUpdateView.as_view(), name='orderitem_update'),
+    path('user_order_update/<int:user_id>/', UserOrderUpdateView.as_view(), name='user_order_update'),
 ]
