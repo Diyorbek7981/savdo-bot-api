@@ -212,7 +212,6 @@ class MonthlyTopCustomersAPIView(APIView):
                 status=status.HTTP_200_OK
             )
 
-        # 🔹 Har bir foydalanuvchi bo‘yicha umumiy summa, buyurtmalar soni, oxirgi buyurtma sanasi
         stats = (
             orders.values(
                 "user__id",
@@ -226,7 +225,7 @@ class MonthlyTopCustomersAPIView(APIView):
                 order_count=Count("id"),
                 last_order=Max("created_at"),
             )
-            .order_by("-total_spent")  # Eng ko‘p xarid qilganlar birinchi
+            .order_by("-total_spent")[:5]
         )
 
         result = []

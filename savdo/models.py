@@ -50,9 +50,8 @@ class Product(models.Model):
 
 class Order(models.Model):
     STATUS_CHOICES = [
-        ('new', "🆕 Yangi"),
-        ('preparing', "🍳 Tayyorlanmoqda"),
-        ('delivering', "🚚 Yetkazilmoqda"),
+        ('preparing', "🍳 Buyurtmangiz kutilmoqda"),
+        ('delivering', "🚚 Buyurtmangiz qabul qilindi"),
         ('completed', "✅ Yakunlangan"),
         ('cancelled', "❌ Bekor qilingan"),
     ]
@@ -105,5 +104,3 @@ class OrderItem(models.Model):
 
     def __str__(self):
         return f"{self.product.name} x {self.quantity}"
-
-
