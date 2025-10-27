@@ -24,15 +24,17 @@ ENV = dotenv_values(os.path.join(BASE_DIR, ".env"))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = ENV.get('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
+
+CORS_ALLOW_ALL_ORIGINS = True
 
 # Application definition
 
 INSTALLED_APPS = [
     'jazzmin',
-    'modeltranslation', 
+    'modeltranslation',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -42,6 +44,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'drf_yasg',
     'savdo',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [

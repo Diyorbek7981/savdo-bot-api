@@ -5,12 +5,13 @@ from modeltranslation.admin import TranslationAdmin
 
 
 # translate u-n jazzmin admin paneli uchun UI
-class TaskAdmin():
+class TaskAdmin(admin.ModelAdmin):
     class Media:
         js = (
             'http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js',
             'http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.2/jquery-ui.min.js',
             'modeltranslation/js/tabbed_translation_fields.js',
+            'admin/js/jquery.init.js',
         )
         css = {
             'screen': ('modeltranslation/css/tabbed_translation_fields.css',),
@@ -60,7 +61,7 @@ class ProductAdmin(TranslationAdmin, TaskAdmin):
     search_fields = ('name', 'category__name')
     ordering = ('-id',)
     autocomplete_fields = ('category',)
-    list_editable = ('price', 'available',)
+    list_editable = ('price', 'available', 'quantity',)
     readonly_fields = ('image_preview',)
     list_per_page = 25
 
@@ -92,8 +93,7 @@ class OrderItemInline(admin.TabularInline):
 class OrderAdmin(admin.ModelAdmin):
     list_display = (
         'id', 'user', 'status', 'is_confirmed', 'total_price',
-        'created_at', 'get_language', 'get_categories'
-    )
+        'created_at',)
     list_display_links = ('id', 'user')
     list_filter = ('status', 'is_confirmed', 'created_at')
     search_fields = (
@@ -101,40 +101,25 @@ class OrderAdmin(admin.ModelAdmin):
     )
     ordering = ('-created_at',)
     readonly_fields = ('total_price', 'created_at')
+    list_editable = ('status',)
     inlines = [OrderItemInline]
     list_per_page = 20
-    autocomplete_fields = ('user', 'categories')
+    autocomplete_fields = ('user',)
 
-    # 🔹 Qo‘shimcha ustunlar
-    def get_language(self, obj):
-        return obj.user.language or '—'
-
-    get_language.short_description = "Til"
-
-    def get_categories(self, obj):
-        cats = obj.categories.all().values_list('name', flat=True)
-        return ", ".join(cats) if cats else "—"
-
-    get_categories.short_description = "Kategoriyalar"
-
-    def get_queryset(self, request):
-        return super().get_queryset(request).select_related('user').prefetch_related('items', 'categories')
-
-
-# -------------------------------
-# ORDER ITEM ADMIN
-# -------------------------------
-@admin.register(OrderItem)
-class OrderItemAdmin(admin.ModelAdmin):
-    list_display = ('id', 'order', 'product', 'quantity', 'total_price')
-    list_display_links = ('id', 'product')
-    search_fields = (
-        'product__name', 'order__user__first_name', 'order__user__user_name'
-    )
-    autocomplete_fields = ('order', 'product')
-    readonly_fields = ('total_price',)
-    ordering = ('-id',)
-    list_per_page = 25
-
-    def get_queryset(self, request):
-        return super().get_queryset(request).select_related('order', 'product')
+# # -------------------------------
+# # ORDER ITEM ADMIN
+# # -------------------------------
+# @admin.register(OrderItem)
+# class OrderItemAdmin(admin.ModelAdmin):
+#     list_display = ('id', 'order', 'product', 'quantity', 'total_price')
+#     list_display_links = ('id', 'product')
+#     search_fields = (
+#         'product__name', 'order__user__first_name', 'order__user__user_name'
+#     )
+#     autocomplete_fields = ('order', 'product')
+#     readonly_fields = ('total_price',)
+#     ordering = ('-id',)
+#     list_per_page = 25
+#
+#     def get_queryset(self, request):
+#         return super().get_queryset(request).select_related('order', 'product')

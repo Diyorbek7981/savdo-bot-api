@@ -43,8 +43,7 @@ class OrderItemCreateSerializer(serializers.ModelSerializer):
 
 class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(many=True, read_only=True)
-    categories = serializers.SlugRelatedField(slug_field='name', many=True, read_only=True)
 
     class Meta:
         model = Order
-        fields = ['id', 'user', 'created_at', 'is_confirmed', 'status', 'total_price', 'categories', 'items']
+        fields = ['id', 'user', 'created_at', 'is_confirmed', 'status', 'total_price', 'items']

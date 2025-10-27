@@ -57,7 +57,6 @@ class Order(models.Model):
         ('cancelled', "❌ Bekor qilingan"),
     ]
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="orders")
-    categories = models.ManyToManyField('Category', blank=True, related_name='orders')
     created_at = models.DateTimeField(auto_now_add=True)
     is_confirmed = models.BooleanField(default=False)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='new')
@@ -106,3 +105,5 @@ class OrderItem(models.Model):
 
     def __str__(self):
         return f"{self.product.name} x {self.quantity}"
+
+

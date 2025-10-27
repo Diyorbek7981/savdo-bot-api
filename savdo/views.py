@@ -6,6 +6,8 @@ from .serializers import UsersSerializer, ProductSerializer, OrderSerializer, Or
     OrderItemCreateSerializer
 from rest_framework import generics, permissions
 from decimal import Decimal
+from django.utils import timezone
+from django.db.models import Sum, Count, Max
 
 
 class UsersView(generics.ListAPIView):
@@ -192,3 +194,52 @@ class OrderDeleteView(generics.DestroyAPIView):
                 {"detail": f"Order ID {order_id} topilmadi."},
                 status=status.HTTP_404_NOT_FOUND
             )
+
+
+# /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+class MonthlyTopCustomersAPIView(APIView):
+    def get(self, request):
+        now = timezone.now()
+        start_of_month = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+
+        orders = Order.objects.filter(created_at__gte=start_of_month, is_confirmed=True, status="completed")
+
+        if not orders.exists():
+            return Response(
+                {"message": "Bu oyda hali hech kim buyurtma qilmagan."},
+                status=status.HTTP_200_OK
+            )
+
+        # 🔹 Har bir foydalanuvchi bo‘yicha umumiy summa, buyurtmalar soni, oxirgi buyurtma sanasi
+        stats = (
+            orders.values(
+                "user__id",
+                "user__first_name",
+                "user__user_name",
+                "user__phone_number",
+                "user__language",
+            )
+            .annotate(
+                total_spent=Sum("total_price"),
+                order_count=Count("id"),
+                last_order=Max("created_at"),
+            )
+            .order_by("-total_spent")  # Eng ko‘p xarid qilganlar birinchi
+        )
+
+        result = []
+        for s in stats:
+            result.append({
+                "user_id": s["user__id"],
+                "first_name": s["user__first_name"],
+                "username": s["user__user_name"],
+                "phone_number": s["user__phone_number"],
+                "language": s["user__language"],
+                "total_spent_this_month": float(s["total_spent"] or 0),
+                "total_orders_this_month": s["order_count"],
+                "last_order_date": s["last_order"].strftime("%Y-%m-%d %H:%M:%S"),
+            })
+
+        return Response(result, status=status.HTTP_200_OK)
