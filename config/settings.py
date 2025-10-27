@@ -23,6 +23,7 @@ ENV = dotenv_values(os.path.join(BASE_DIR, ".env"))
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = ENV.get('SECRET_KEY')
+TELEGRAM_BOT_TOKEN = ENV.get("BOT_TOKEN")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
@@ -43,7 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'drf_yasg',
-    'savdo',
+    'savdo.apps.SavdoConfig',
     'corsheaders',
 ]
 
