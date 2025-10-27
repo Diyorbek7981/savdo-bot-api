@@ -24,7 +24,7 @@ ENV = dotenv_values(os.path.join(BASE_DIR, ".env"))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = ENV.get('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -49,6 +49,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -107,7 +108,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
-LOCALE_PATHS = [  # /// Translate u-n
+LOCALE_PATHS = [
     BASE_DIR / 'locale'
 ]
 
@@ -118,8 +119,10 @@ LANGUAGES = (
 
 MODELTRANSLATION_DEFAULT_LANGUAGE = 'uz'
 MODELTRANSLATION_LANGUAGES = ('uz', 'ru')
+MODELTRANSLATION_FALLBACK_LANGUAGES = ('uz', 'ru')
 
 LANGUAGE_CODE = 'uz'
+LANGUAGE_COOKIE_NAME = 'django_language'
 
 TIME_ZONE = 'Asia/Tashkent'
 
