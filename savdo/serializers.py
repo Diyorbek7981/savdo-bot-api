@@ -19,7 +19,8 @@ class ProductSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Product
-        fields = ['id', 'name', 'price', 'unit', 'available', 'category', 'category_name', 'photo']
+        fields = ['id', 'name', 'price', 'unit', 'available', 'category', 'category_name', 'photo', "quantity",
+                  "description"]
 
     photo = serializers.CharField(source='image_path')
 

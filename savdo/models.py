@@ -30,6 +30,8 @@ class Product(models.Model):
     unit = models.CharField(max_length=50, default="dona")
     image = models.ImageField(upload_to='products/', blank=True, null=True)
     available = models.BooleanField(default=True)
+    quantity = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
+    description = models.TextField(blank=True, null=True, max_length=100)
 
     def __str__(self):
         return f"{self.name} ({self.category.name})"
@@ -37,6 +39,13 @@ class Product(models.Model):
     @property
     def image_path(self):
         return self.image.path
+
+    def save(self, *args, **kwargs):
+        if self.quantity <= 0:
+            self.available = False
+        else:
+            self.available = True
+        super().save(*args, **kwargs)
 
 
 class Order(models.Model):
@@ -62,6 +71,26 @@ class Order(models.Model):
         self.total_price = total
         self.save(update_fields=["total_price"])
         return total
+
+    def save(self, *args, **kwargs):
+        # Avval eski holatni olish uchun bazadan tekshiramiz
+        if self.pk:
+            old_status = Order.objects.get(pk=self.pk).status
+        else:
+            old_status = None
+
+        super().save(*args, **kwargs)
+
+        # ✅ Agar status 'completed' bo'lsa, Product miqdorini kamaytirish
+        if self.status == "completed" and old_status != "completed":
+            for item in self.items.all():
+                product = item.product
+                if product.quantity >= item.quantity:
+                    product.quantity -= item.quantity
+                else:
+                    product.quantity = Decimal('0.00')
+                    product.available = False  # agar qolmasa, mavjud emas deb belgilanadi
+                product.save(update_fields=["quantity", "available"])
 
 
 class OrderItem(models.Model):
