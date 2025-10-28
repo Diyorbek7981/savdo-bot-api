@@ -5,7 +5,7 @@ from decimal import Decimal
 class User(models.Model):
     telegram_id = models.CharField(max_length=100, blank=True, null=True)
     first_name = models.CharField(max_length=100, blank=True, null=True)
-    user_name = models.CharField(max_length=100, unique=True)
+    user_name = models.CharField(max_length=100, default="no username")
     age = models.PositiveIntegerField(blank=True, null=True)
     phone_number = models.CharField(max_length=20, blank=True, null=True)
     is_registered = models.BooleanField(default=False)
