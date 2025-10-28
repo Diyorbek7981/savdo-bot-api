@@ -1,9 +1,9 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .models import User, Product, Order, OrderItem, Category
+from .models import User, Product, Order, OrderItem, Category, ProductNameCategory
 from .serializers import UsersSerializer, ProductSerializer, OrderSerializer, OrderItemSerializer, CategorySerializer, \
-    OrderItemCreateSerializer
+    OrderItemCreateSerializer, ProdNameCategorySerializer
 from rest_framework import generics, permissions
 from decimal import Decimal
 from django.utils import timezone
@@ -140,20 +140,42 @@ class CategoryView(generics.ListAPIView):
     permission_classes = [permissions.AllowAny]
 
 
-class ProductsByCategoryView(generics.ListAPIView):
-    serializer_class = ProductSerializer
+class CategoryToNameCategoryAPIView(APIView):
+    def get(self, request, category_id=None):
+        if not category_id:
+            return Response({"detail": "category_id berilishi kerak"}, status=status.HTTP_400_BAD_REQUEST)
 
-    def get(self, request, category_id, *args, **kwargs):
-        products = Product.objects.filter(category_id=category_id, available=True)
+        try:
+            category_id = int(category_id)
+        except ValueError:
+            return Response({"detail": "category_id butun son bo‘lishi kerak"}, status=status.HTTP_400_BAD_REQUEST)
 
-        if not products.exists():
-            return Response(
-                {"detail": "Bu kategoriyaga tegishli mahsulot topilmadi."},
-                status=status.HTTP_404_NOT_FOUND
-            )
+        name_categories = ProductNameCategory.objects.filter(category_id=category_id)
+        result = [{"id": nc.id, "name": nc.name} for nc in name_categories]
+        return Response(result, status=status.HTTP_200_OK)
 
-        serializer = self.get_serializer(products, many=True)
-        return Response(serializer.data)
+
+class NameCategoryToProductAPIView(APIView):
+    def get(self, request, name_category_id=None):
+        if not name_category_id:
+            return Response({"detail": "name_category_id berilishi kerak"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            name_category_id = int(name_category_id)
+        except ValueError:
+            return Response({"detail": "name_category_id butun son bo‘lishi kerak"}, status=status.HTTP_400_BAD_REQUEST)
+
+        products = Product.objects.filter(name_category_id=name_category_id)
+        result = [
+            {
+                "id": p.id,
+                "name": p.name,
+                "price": float(p.price),
+                "unit": p.unit,
+                "available": p.available
+            } for p in products
+        ]
+        return Response(result, status=status.HTTP_200_OK)
 
 
 class ProductRetrieveAPIView(generics.RetrieveAPIView):

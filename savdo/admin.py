@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from .models import User, Category, Product, Order, OrderItem
+from .models import User, Category, Product, Order, OrderItem, ProductNameCategory
 from modeltranslation.admin import TranslationAdmin
 
 
@@ -48,24 +48,37 @@ class CategoryAdmin(TranslationAdmin, TaskAdmin):
 
 
 # -------------------------------
+# PRODUCT NAME CATEGORY ADMIN
+# -------------------------------
+@admin.register(ProductNameCategory)
+class ProductNameCategoryAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'category',)
+    list_display_links = ('id', 'name', 'category',)
+    search_fields = ('name',)
+    list_filter = ('category',)
+    ordering = ('name',)
+    autocomplete_fields = ('category',)
+    list_per_page = 25
+
+
+# -------------------------------
 # PRODUCT ADMIN
 # -------------------------------
 @admin.register(Product)
 class ProductAdmin(TranslationAdmin, TaskAdmin):
     list_display = (
-        'id', 'name', 'category', 'price', 'unit',
+        'id', 'name', 'name_category', 'price', 'unit',
         'quantity', 'available', 'image_preview'
     )
     list_display_links = ('id', 'name')
-    list_filter = ('available', 'category')
-    search_fields = ('name', 'category__name')
+    list_filter = ('available', 'name_category')
+    search_fields = ('name', 'name_category__name')
     ordering = ('-id',)
-    autocomplete_fields = ('category',)
+    autocomplete_fields = ('name_category',)
     list_editable = ('price', 'available', 'quantity',)
     readonly_fields = ('image_preview',)
     list_per_page = 25
 
-    # 🔹 Admin sahifada rasmni kichik preview sifatida ko‘rsatish
     def image_preview(self, obj):
         if obj.image:
             return format_html(f'<img src="{obj.image.url}" width="50" height="50" style="border-radius:6px;" />')
@@ -105,21 +118,3 @@ class OrderAdmin(admin.ModelAdmin):
     inlines = [OrderItemInline]
     list_per_page = 20
     autocomplete_fields = ('user',)
-
-# # -------------------------------
-# # ORDER ITEM ADMIN
-# # -------------------------------
-# @admin.register(OrderItem)
-# class OrderItemAdmin(admin.ModelAdmin):
-#     list_display = ('id', 'order', 'product', 'quantity', 'total_price')
-#     list_display_links = ('id', 'product')
-#     search_fields = (
-#         'product__name', 'order__user__first_name', 'order__user__user_name'
-#     )
-#     autocomplete_fields = ('order', 'product')
-#     readonly_fields = ('total_price',)
-#     ordering = ('-id',)
-#     list_per_page = 25
-#
-#     def get_queryset(self, request):
-#         return super().get_queryset(request).select_related('order', 'product')
