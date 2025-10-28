@@ -25,7 +25,7 @@ ENV = dotenv_values(os.path.join(BASE_DIR, ".env"))
 SECRET_KEY = ENV.get('SECRET_KEY')
 TELEGRAM_BOT_TOKEN = ENV.get("BOT_TOKEN")
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
