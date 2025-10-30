@@ -1,11 +1,10 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, viewsets
 from .models import User, Product, Order, OrderItem, Category, ProductNameCategory
 from .serializers import UsersSerializer, ProductSerializer, OrderSerializer, OrderItemSerializer, CategorySerializer, \
     OrderItemCreateSerializer, ProdNameCategorySerializer
 from rest_framework import generics, permissions
-from decimal import Decimal
 from django.utils import timezone
 from django.db.models import Sum, Count, Max
 
@@ -25,6 +24,7 @@ class CreateUserView(generics.CreateAPIView):
 class GetUpdateUserView(generics.RetrieveUpdateAPIView):
     queryset = User.objects.all()
     serializer_class = UsersSerializer
+    permission_classes = [permissions.AllowAny]
     lookup_field = "telegram_id"
     lookup_url_kwarg = "telegram_id"
 
@@ -47,6 +47,8 @@ class GetUpdateUserView(generics.RetrieveUpdateAPIView):
 
 
 class UserGetView(APIView):
+    permission_classes = [permissions.AllowAny]
+
     def get(self, request, telegram_id, format=None):
         try:
             user = User.objects.get(telegram_id=telegram_id)
@@ -67,6 +69,7 @@ class OrderCreatView(generics.CreateAPIView):
 
 class UserOrdersRetrieveView(generics.RetrieveAPIView):
     serializer_class = OrderSerializer
+    permission_classes = [permissions.AllowAny]
 
     def get(self, request, user_id, *args, **kwargs):
         order = (
@@ -88,6 +91,7 @@ class UserOrdersRetrieveView(generics.RetrieveAPIView):
 
 class UserActiveOrdersView(generics.ListAPIView):
     serializer_class = OrderSerializer
+    permission_classes = [permissions.AllowAny]
 
     def get_queryset(self):
         user_id = self.kwargs.get("user_id")
@@ -112,6 +116,7 @@ class UserActiveOrdersView(generics.ListAPIView):
 class UserOrderUpdateView(generics.UpdateAPIView):
     serializer_class = OrderSerializer
     queryset = Order.objects.all()
+    permission_classes = [permissions.AllowAny]
 
     def patch(self, request, user_id, *args, **kwargs):
         order = (
@@ -141,6 +146,8 @@ class CategoryView(generics.ListAPIView):
 
 
 class CategoryToNameCategoryAPIView(APIView):
+    permission_classes = [permissions.AllowAny]
+
     def get(self, request, category_id=None):
         if not category_id:
             return Response({"detail": "category_id berilishi kerak"}, status=status.HTTP_400_BAD_REQUEST)
@@ -156,6 +163,8 @@ class CategoryToNameCategoryAPIView(APIView):
 
 
 class NameCategoryToProductAPIView(APIView):
+    permission_classes = [permissions.AllowAny]
+
     def get(self, request, name_category_id=None):
         if not name_category_id:
             return Response({"detail": "name_category_id berilishi kerak"}, status=status.HTTP_400_BAD_REQUEST)
@@ -179,6 +188,7 @@ class NameCategoryToProductAPIView(APIView):
 
 
 class ProductRetrieveAPIView(generics.RetrieveAPIView):
+    permission_classes = [permissions.AllowAny]
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     lookup_field = 'id'
@@ -222,6 +232,8 @@ class OrderDeleteView(generics.DestroyAPIView):
 
 
 class MonthlyTopCustomersAPIView(APIView):
+    permission_classes = [permissions.AllowAny]
+
     def get(self, request):
         now = timezone.now()
         start_of_month = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)

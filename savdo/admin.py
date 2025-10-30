@@ -71,7 +71,7 @@ class ProductAdmin(TranslationAdmin, TaskAdmin):
         'quantity', 'available', 'image_preview'
     )
     list_display_links = ('id', 'name')
-    list_filter = ('available', 'name_category')
+    list_filter = ('available', 'name_category', 'unit', 'price', 'quantity')
     search_fields = ('name', 'name_category__name')
     ordering = ('-id',)
     autocomplete_fields = ('name_category',)

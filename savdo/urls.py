@@ -24,4 +24,5 @@ urlpatterns = [
     path("orders_list/<int:user_id>/", UserActiveOrdersView.as_view(), name="user_active_orders"),
 
     path('top_monthly_customers/', MonthlyTopCustomersAPIView.as_view(), name='top-monthly-customers'),
+
 ]
