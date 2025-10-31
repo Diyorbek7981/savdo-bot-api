@@ -12,6 +12,7 @@ import sys
 
 @receiver(pre_save, sender=Order)
 def send_order_status_notification(sender, instance, **kwargs):
+    # Faqat mavjud (update) buyurtmalarda ishlaydi
     if not instance.pk:
         return
 
@@ -20,20 +21,21 @@ def send_order_status_notification(sender, instance, **kwargs):
     except sender.DoesNotExist:
         return
 
+    # Agar status o‘zgarmagan bo‘lsa — hech narsa yuborilmaydi
     if old_instance.status == instance.status:
         return
 
     user = instance.user
-    telegram_id = user.telegram_id
+    telegram_id = getattr(user, "telegram_id", None)
     if not telegram_id:
         return
 
-    lang = user.language or "uz"
+    lang = getattr(user, "language", "uz") or "uz"
 
     messages = {
         "uz": {
-            "preparing": "🍳 Buyurtmangiz kutilmoqda",
-            "delivering": "🚚 Buyurtmangiz qabul qilindi",
+            "preparing": "🍳 Buyurtmangiz tayyorlanmoqda.",
+            "delivering": "🚚 Buyurtmangiz yetkazilmoqda.",
             "completed": "✅ Buyurtmangiz yakunlandi!",
             "cancelled": "❌ Buyurtmangiz bekor qilindi.",
         },
@@ -45,14 +47,42 @@ def send_order_status_notification(sender, instance, **kwargs):
         },
     }
 
-    msg = messages.get(lang, messages["uz"]).get(instance.status, "📦 Buyurtma holati o‘zgardi.")
+    # Kerakli matnni tanlaymiz
+    msg_text = messages.get(lang, messages["uz"]).get(instance.status, "📦 Buyurtma holati o‘zgardi.")
 
+    # Buyurtma haqida qisqacha ma'lumot (raqam, sana, narx)
+    created_text = (
+        instance.created_at.strftime('%d.%m.%Y %H:%M')
+        if hasattr(instance, "created_at") and instance.created_at
+        else ""
+    )
+
+    # Narxni olish (turli maydon nomlari bilan moslashadi)
+    total_price = getattr(instance, "total_price", None) or getattr(instance, "price", None) or 0
+
+    # Tilga qarab qo‘shimcha ma’lumot matni
+    if lang == "uz":
+        info_text = (
+            f"\n\n🧾 Buyurtma raqami: #{instance.id}"
+            f"\n📅 Sana: {created_text}"
+            f"\n💰 Umumiy summa: {total_price:,} so‘m"
+        )
+    else:
+        info_text = (
+            f"\n\n🧾 Номер заказа: #{instance.id}"
+            f"\n📅 Дата: {created_text}"
+            f"\n💰 Общая сумма: {total_price:,} сум"
+        )
+
+    msg = msg_text + info_text
+
+    # Telegramga yuborish
     token = TELEGRAM_BOT_TOKEN
     url = f"https://api.telegram.org/bot{token}/sendMessage"
-
     payload = {
         "chat_id": telegram_id,
         "text": msg,
+        "parse_mode": "HTML",
     }
 
     try:
