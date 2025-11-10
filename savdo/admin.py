@@ -121,4 +121,4 @@ class OrderAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
-        return qs.filter(is_confirmed=True)
+        return qs.filter(is_confirmed=True).exclude(status__in=['cancelled', 'completed'])
