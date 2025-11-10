@@ -118,3 +118,7 @@ class OrderAdmin(admin.ModelAdmin):
     inlines = [OrderItemInline]
     list_per_page = 20
     autocomplete_fields = ('user',)
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.filter(is_confirmed=True)
