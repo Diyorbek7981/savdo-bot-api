@@ -174,7 +174,7 @@ class NameCategoryToProductAPIView(APIView):
         except ValueError:
             return Response({"detail": "name_category_id butun son bo‘lishi kerak"}, status=status.HTTP_400_BAD_REQUEST)
 
-        products = Product.objects.filter(name_category_id=name_category_id)
+        products = Product.objects.filter(name_category_id=name_category_id, available=True)
         result = [
             {
                 "id": p.id,

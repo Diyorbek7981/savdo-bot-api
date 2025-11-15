@@ -51,8 +51,6 @@ class Product(models.Model):
     def save(self, *args, **kwargs):
         if self.quantity <= 0:
             self.available = False
-        else:
-            self.available = True
         super().save(*args, **kwargs)
 
 
